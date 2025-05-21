@@ -16,10 +16,29 @@ spec:
     spec:
       containers:
       - name: log-analyzer
-        image: log-analyzer:latest
+        image: ajpio/troubleshoot-llm:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
         volumeMounts:
         - name: embedded-cluster-logs
           mountPath: /logs/embedded-cluster
@@ -27,11 +46,8 @@ spec:
         - name: embedded-cluster-data
           mountPath: /logs/embedded-cluster-data
           readOnly: true
-        - name: syslog
-          mountPath: /logs/syslog
-          readOnly: true
-        - name: journal
-          mountPath: /var/log/journal
+        - name: messages
+          mountPath: /logs/messages
           readOnly: true
         - name: pod-logs
           mountPath: /logs/pods
@@ -45,14 +61,10 @@ spec:
         hostPath:
           path: /var/lib/embedded-cluster
           type: Directory
-      - name: syslog
+      - name: messages
         hostPath:
-          path: /var/log/syslog
+          path: /var/log/messages
           type: File
-      - name: journal
-        hostPath:
-          path: /var/log/journal
-          type: Directory
       - name: pod-logs
         hostPath:
           path: /var/log/pods
@@ -68,4 +80,23 @@ spec:
   ports:
   - port: 8000
     targetPort: 8000
-  type: ClusterIP 
+    name: http
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: log-analyzer
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: log-analyzer
+            port:
+              number: 8000 

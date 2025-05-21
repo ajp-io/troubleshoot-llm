@@ -8,7 +8,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Create log directories
-RUN mkdir -p /logs/kots /logs/helm
+RUN mkdir -p /logs/embedded-cluster \
+    /logs/embedded-cluster-data \
+    /logs/pods \
+    /var/log/messages
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

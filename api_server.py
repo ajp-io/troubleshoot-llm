@@ -104,8 +104,8 @@ async def analyze_embedded_cluster_logs(hours: int = 24):
                             "analysis": result
                         })
         
-        # Check /var/lib/embedded-cluster/logs
-        data_log_dir = "/logs/embedded-cluster-data/logs"
+        # Check embedded-cluster data directory
+        data_log_dir = "/logs/embedded-cluster-data"
         if os.path.exists(data_log_dir):
             for log_file in glob.glob(f"{data_log_dir}/*.log"):
                 if os.path.getmtime(log_file) >= (datetime.now() - timedelta(hours=hours)).timestamp():
@@ -152,7 +152,7 @@ async def analyze_syslog(hours: int = 24):
     Analyze system logs from syslog.
     """
     try:
-        syslog_path = "/logs/syslog"
+        syslog_path = "/var/log/messages"
         if not os.path.exists(syslog_path):
             raise HTTPException(status_code=404, detail="Syslog file not found")
         
