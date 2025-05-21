@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-analyzer
+  labels:
+    app: log-analyzer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-analyzer
+  template:
+    metadata:
+      labels:
+        app: log-analyzer
+    spec:
+      containers:
+      - name: log-analyzer
+        image: log-analyzer:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: embedded-cluster-logs
+          mountPath: /logs/embedded-cluster
+          readOnly: true
+        - name: embedded-cluster-data
+          mountPath: /logs/embedded-cluster-data
+          readOnly: true
+        - name: syslog
+          mountPath: /logs/syslog
+          readOnly: true
+        - name: journal
+          mountPath: /var/log/journal
+          readOnly: true
+        - name: pod-logs
+          mountPath: /logs/pods
+          readOnly: true
+      volumes:
+      - name: embedded-cluster-logs
+        hostPath:
+          path: /var/log/embedded-cluster
+          type: Directory
+      - name: embedded-cluster-data
+        hostPath:
+          path: /var/lib/embedded-cluster
+          type: Directory
+      - name: syslog
+        hostPath:
+          path: /var/log/syslog
+          type: File
+      - name: journal
+        hostPath:
+          path: /var/log/journal
+          type: Directory
+      - name: pod-logs
+        hostPath:
+          path: /var/log/pods
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: log-analyzer
+spec:
+  selector:
+    app: log-analyzer
+  ports:
+  - port: 8000
+    targetPort: 8000
+  type: ClusterIP 
