@@ -1,5 +1,5 @@
 # Build stage
-FROM python:3.10-slim-bullseye as builder
+FROM python:3.10-slim-bullseye AS builder
 
 WORKDIR /app
 
