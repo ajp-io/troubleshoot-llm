@@ -1,7 +1,7 @@
-transformers
-torch
-fastapi
-uvicorn
-pydantic
-tiktoken
-protobuf
+transformers==4.38.2
+torch==2.2.1
+fastapi==0.110.0
+uvicorn==0.27.1
+pydantic==2.6.3
+tiktoken==0.6.0
+protobuf==4.25.3
