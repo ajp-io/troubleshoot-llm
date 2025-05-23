@@ -24,8 +24,6 @@ spec:
           requests:
             memory: "2Gi"
             cpu: "250m"
-          limits:
-            memory: "4Gi"
         livenessProbe:
           httpGet:
             path: /health
